@@ -50,10 +50,64 @@ void NewAccountWizardController::setupWizard()
 
     updateColors();
 
-    _wizard->setFixedSize(600, 450);
+    _wizard->setFixedSize(680, 540);
     _wizard->setWizardStyle(QWizard::ModernStyle);
     _wizard->setWindowTitle(tr("Add account…"));
     _wizard->setObjectName("NewAccountWizard");
+
+    // Modern wizard styling with BauGPT design language
+    // Force light mode appearance regardless of system theme
+    _wizard->setStyleSheet(
+        "QWizard { "
+        "  background-color: #FAFBFC; "
+        "  color: #2C3E50; "
+        "} "
+        "QWizardPage { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+        "                               stop:0 #FAFBFC, stop:1 #F4F5F7); "
+        "  color: #2C3E50; "
+        "} "
+        "QLabel { "
+        "  color: #2C3E50; "
+        "  background: transparent; "
+        "} "
+        "QWizard QPushButton { "
+        "  min-width: 90px; "
+        "  min-height: 36px; "
+        "  padding: 8px 20px; "
+        "  border-radius: 8px; "
+        "  font-size: 14px; "
+        "  font-weight: 600; "
+        "  border: none; "
+        "} "
+        "QWizard QPushButton:enabled { "
+        "  background-color: #FF6B35; "
+        "  color: white; "
+        "} "
+        "QWizard QPushButton:enabled:hover { "
+        "  background-color: #FF8555; "
+        "} "
+        "QWizard QPushButton:enabled:pressed { "
+        "  background-color: #E65520; "
+        "} "
+        "QWizard QPushButton:disabled { "
+        "  background-color: #E8EAED; "
+        "  color: #95A5B8; "
+        "} "
+        "QWizard QPushButton[text='Back'], "
+        "QWizard QPushButton[text='Advanced'], "
+        "QWizard QPushButton[text='Cancel'] { "
+        "  background-color: transparent; "
+        "  color: #5D6D7E; "
+        "  border: 2px solid #D5D8DC; "
+        "} "
+        "QWizard QPushButton[text='Back']:hover, "
+        "QWizard QPushButton[text='Advanced']:hover, "
+        "QWizard QPushButton[text='Cancel']:hover { "
+        "  background-color: #F4F5F7; "
+        "  border-color: #BDC3C7; "
+        "} "
+    );
 
     QWizard::WizardOptions origOptions = _wizard->options();
     _wizard->setOptions(origOptions | QWizard::IndependentPages | QWizard::NoBackButtonOnStartPage);

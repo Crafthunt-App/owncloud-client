@@ -19,6 +19,7 @@
 #include "networkadapters/resolveurladapter.h"
 #include "theme.h"
 
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSignalBlocker>
@@ -50,74 +51,194 @@ void UrlPageController::buildPage()
 
     QString appName = Theme::instance()->appNameGUI();
 
+    // Logo with elevated styling
     QLabel *logoLabel = new QLabel({}, _page);
-    logoLabel->setPixmap(Theme::instance()->wizardHeaderLogo().pixmap(200, 100));
+    QIcon headerIcon = Theme::instance()->wizardHeaderLogo();
+    if (!headerIcon.isNull()) {
+        // Use a reasonable size for the logo
+        QPixmap logoPix = headerIcon.pixmap(QSize(200, 100));
+        logoLabel->setPixmap(logoPix);
+        logoLabel->setMinimumSize(220, 120);
+        logoLabel->setMaximumSize(280, 140);
+    }
     logoLabel->setAlignment(Qt::AlignCenter);
-    logoLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    logoLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     logoLabel->setAccessibleName(tr("%1 logo").arg(appName));
+    logoLabel->setScaledContents(false);
+    logoLabel->setStyleSheet(
+        "QLabel { "
+        "  padding: 16px; "
+        "  background-color: white; "
+        "  border-radius: 16px; "
+        "}"
+    );
 
+    // Bold, striking welcome label with BauGPT orange accent
     QLabel *welcomeLabel = new QLabel(tr("Welcome to %1").arg(appName), _page);
     QFont welcomeFont = welcomeLabel->font();
-    welcomeFont.setWeight(QFont::DemiBold);
-    welcomeFont.setPixelSize(20);
+    welcomeFont.setWeight(QFont::Black);
+    welcomeFont.setPixelSize(32);
+    welcomeFont.setLetterSpacing(QFont::AbsoluteSpacing, -0.5);
     welcomeLabel->setFont(welcomeFont);
     welcomeLabel->setAlignment(Qt::AlignCenter);
     welcomeLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
+    QPalette welcomePalette = welcomeLabel->palette();
+    welcomePalette.setColor(QPalette::WindowText, QColor("#2C3E50"));
+    welcomeLabel->setPalette(welcomePalette);
+    welcomeLabel->setStyleSheet(
+        "QLabel { "
+        "  color: #2C3E50; "
+        "  background: transparent; "
+        "  padding: 8px 0; "
+        "}"
+    );
+
+    // Refined instruction text
     _instructionLabel = new QLabel(tr("Enter your server address to get started. Your web browser will be opened to complete sign in."), _page);
     QFont font = _instructionLabel->font();
-    font.setPixelSize(14);
+    font.setPixelSize(15);
+    font.setLetterSpacing(QFont::AbsoluteSpacing, 0.2);
     _instructionLabel->setFont(font);
     _instructionLabel->setWordWrap(true);
     _instructionLabel->setAlignment(Qt::AlignCenter);
     _instructionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
+    QPalette instructionPalette = _instructionLabel->palette();
+    instructionPalette.setColor(QPalette::WindowText, QColor("#5D6D7E"));
+    _instructionLabel->setPalette(instructionPalette);
+    _instructionLabel->setStyleSheet(
+        "QLabel { "
+        "  color: #5D6D7E; "
+        "  background: transparent; "
+        "  line-height: 1.6; "
+        "  padding: 0 24px; "
+        "}"
+    );
+
+    // Modern, elevated input field with BauGPT orange focus accent
     _urlField = new QLineEdit(_page);
-    QPalette urlFieldPalette = _urlField->palette();
-    urlFieldPalette.setColor(QPalette::Base, urlFieldPalette.color(QPalette::Button));
-    urlFieldPalette.setColor(QPalette::Text, urlFieldPalette.color(QPalette::ButtonText));
-    _urlField->setPalette(urlFieldPalette);
     _urlField->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    _urlField->setPlaceholderText(Theme::instance()->wizardUrlPlaceholder());
+    _urlField->setMinimumHeight(52);
+    _urlField->setMinimumWidth(480);
+    _urlField->setMaximumWidth(520);
+    _urlField->setPlaceholderText(Theme::instance()->wizardUrlPlaceholder().isEmpty()
+        ? tr("https://your-server.com")
+        : Theme::instance()->wizardUrlPlaceholder());
     _urlField->setFocusPolicy(Qt::StrongFocus);
     _urlField->setAccessibleName(tr("Server address field"));
     _urlField->setAccessibleDescription(tr("Enter your server address here"));
     _urlField->setObjectName("ServerAddressLineEdit");
 
+    QFont urlFont = _urlField->font();
+    urlFont.setPixelSize(15);
+    _urlField->setFont(urlFont);
+
+    // Set palette explicitly for light mode appearance
+    QPalette urlPalette = _urlField->palette();
+    urlPalette.setColor(QPalette::Base, QColor("#FFFFFF"));
+    urlPalette.setColor(QPalette::Text, QColor("#2C3E50"));
+    urlPalette.setColor(QPalette::PlaceholderText, QColor("#95A5B8"));
+    _urlField->setPalette(urlPalette);
+
+    _urlField->setStyleSheet(
+        "QLineEdit { "
+        "  background-color: white; "
+        "  border: 2px solid #E8EAED; "
+        "  border-radius: 12px; "
+        "  padding: 14px 20px; "
+        "  color: #2C3E50; "
+        "  font-size: 15px; "
+        "} "
+        "QLineEdit:hover { "
+        "  border-color: #FF6B35; "
+        "  background-color: #FFFFFF; "
+        "} "
+        "QLineEdit:focus { "
+        "  border: 3px solid #FF6B35; "
+        "  background-color: #FFFFFF; "
+        "  padding: 13px 19px; "
+        "} "
+    );
+
+    // Modern error field with refined styling
     _errorField = new QLabel(QString(), _page);
-    QPalette errorPalette = _errorField->palette();
-    errorPalette.setColor(QPalette::Text, Qt::red);
-    _errorField->setPalette(errorPalette);
     QFont errorFont = _errorField->font();
-    errorFont.setPixelSize(14);
+    errorFont.setPixelSize(13);
+    errorFont.setWeight(QFont::Medium);
     _errorField->setFont(errorFont);
     _errorField->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     _errorField->setWordWrap(true);
-    _errorField->setAlignment(Qt::AlignLeft);
+    _errorField->setAlignment(Qt::AlignCenter);
     _errorField->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+    _errorField->setMinimumWidth(480);
+    _errorField->setMaximumWidth(520);
+    _errorField->setVisible(false); // Hide by default, show only when there's an error
 
+    QPalette errorPalette = _errorField->palette();
+    errorPalette.setColor(QPalette::WindowText, QColor("#E74C3C"));
+    _errorField->setPalette(errorPalette);
+
+    _errorField->setStyleSheet(
+        "QLabel { "
+        "  color: #E74C3C; "
+        "  background-color: #FADBD8; "
+        "  border: 1px solid #F1948A; "
+        "  border-radius: 8px; "
+        "  padding: 12px 16px; "
+        "  margin-top: 8px; "
+        "}"
+    );
+
+    // Footer logo with subtle styling
     QLabel *footerLogoLabel = nullptr;
     if (!Theme::instance()->wizardFooterLogo().isNull()) {
         footerLogoLabel = new QLabel({}, _page);
-        footerLogoLabel->setPixmap(Theme::instance()->wizardFooterLogo().pixmap(100, 52));
+        footerLogoLabel->setPixmap(Theme::instance()->wizardFooterLogo().pixmap(120, 60));
         footerLogoLabel->setAlignment(Qt::AlignCenter);
         footerLogoLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         footerLogoLabel->setAccessibleName(tr("Additional logo defined by the organization"));
+        footerLogoLabel->setStyleSheet(
+            "QLabel { "
+            "  padding: 8px; "
+            "  opacity: 0.7; "
+            "}"
+        );
     }
 
+    // Create horizontal layout for input field centering
+    QHBoxLayout *inputLayout = new QHBoxLayout();
+    inputLayout->addStretch(1);
+    inputLayout->addWidget(_urlField);
+    inputLayout->addStretch(1);
+
+    // Create horizontal layout for error field centering
+    QHBoxLayout *errorLayout = new QHBoxLayout();
+    errorLayout->addStretch(1);
+    errorLayout->addWidget(_errorField);
+    errorLayout->addStretch(1);
+
+    // Generous spacing for a refined, modern feel
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->setContentsMargins(50, 0, 50, 0);
-    layout->setSpacing(12);
+    layout->setContentsMargins(60, 40, 60, 40);
+    layout->setSpacing(0);
+
     layout->addStretch(1);
     layout->addWidget(logoLabel, Qt::AlignCenter);
-    layout->addSpacing(16);
+    layout->addSpacing(32);
     layout->addWidget(welcomeLabel, Qt::AlignCenter);
+    layout->addSpacing(12);
     layout->addWidget(_instructionLabel, Qt::AlignCenter);
-    layout->addWidget(_urlField, Qt::AlignCenter);
-    layout->addWidget(_errorField, Qt::AlignLeft);
-    if (footerLogoLabel)
+    layout->addSpacing(28);
+    layout->addLayout(inputLayout);
+    layout->addLayout(errorLayout);
+    layout->addSpacing(20);
+    if (footerLogoLabel) {
         layout->addWidget(footerLogoLabel, Qt::AlignCenter);
+        layout->addSpacing(8);
+    }
     layout->addStretch(1);
+
     _page->setLayout(layout);
 
     _urlField->setFocus(Qt::OtherFocusReason);
@@ -132,6 +253,7 @@ void UrlPageController::setUrl(const QString &urlText)
 void UrlPageController::handleError(const QString &error)
 {
     _errorField->setText(error);
+    _errorField->setVisible(!error.isEmpty()); // Show error field only when there's an error message
     _results.error = error;
     Q_EMIT failure(_results);
 }
@@ -182,6 +304,7 @@ bool UrlPageController::validate()
 {
     _results = {};
     _errorField->clear();
+    _errorField->setVisible(false); // Hide error field when starting validation
 
     if (!_accessManager) {
         handleError(QStringLiteral("No valid access manager is available"));
