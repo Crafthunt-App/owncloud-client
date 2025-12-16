@@ -112,7 +112,8 @@ Pane {
             Layout.maximumWidth: widthHint
             icon.source: QMLResources.resourcePath("core", "plus-solid", enabled)
             text: qsTr("Add Account")
-            visible: Theme.multiAccount || AccountManager.accounts.length === 0
+            visible: true
+            enabled: AccountManager.accounts.length === 0
 
             Keys.onBacktabPressed: event => {
                 // If there are no account buttons, we're the first button, so handle the back-tab
